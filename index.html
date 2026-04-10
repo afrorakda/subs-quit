@@ -28,7 +28,6 @@
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-            /* 長押し選択を全体的に抑制 */
             -webkit-touch-callout: none;
             -webkit-user-select: none;
             user-select: none;
@@ -65,11 +64,12 @@
             text-transform: uppercase;
         }
 
-        .input-row { display: flex; flex-direction: column; gap: 10px; }
-
+        .input-wrapper { position: relative; display: flex; align-items: center; margin-bottom: 10px; }
+        
         input {
             width: 100%;
             padding: 12px;
+            padding-right: 40px;
             border: 2px solid var(--accent);
             border-radius: 12px;
             background: #fff;
@@ -81,9 +81,27 @@
             -webkit-appearance: none;
             -webkit-text-fill-color: var(--main) !important;
             opacity: 1 !important;
-            user-select: text; /* 入力時のみテキスト選択を許可 */
+            user-select: text;
         }
-        input::placeholder { color: #ccc; -webkit-text-fill-color: #ccc; }
+        input::placeholder { color: #bbb; -webkit-text-fill-color: #bbb; }
+
+        .clr-btn {
+            position: absolute;
+            right: 8px;
+            width: 28px;
+            height: 28px;
+            background: rgba(0,0,0,0.05);
+            border: none;
+            border-radius: 50%;
+            color: #888;
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        .clr-btn.active { display: flex; }
 
         .add-btn {
             width: 100%;
@@ -100,7 +118,6 @@
         }
         .add-btn:active { transform: scale(0.98); opacity: 0.9; }
 
-        /* 警告リスト（Snippet） */
         .list-container {
             flex-grow: 1;
             display: flex;
@@ -118,18 +135,17 @@
             align-items: center;
             justify-content: space-between;
             text-align: left;
-            animation: fadeIn 0.3s ease;
+            transition: border-color 0.3s;
         }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .subs-info { flex-grow: 1; }
-        .subs-name { font-weight: 800; font-size: 1rem; margin-bottom: 2px; }
-        .subs-date { font-size: 0.75rem; color: var(--text-gray); font-weight: 600; }
+        .subs-info { flex-grow: 1; min-width: 0; }
+        .subs-name { font-weight: 800; font-size: 1rem; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .subs-date { font-size: 0.7rem; color: var(--text-gray); font-weight: 700; text-transform: uppercase; }
 
         .subs-countdown {
             text-align: right;
             margin: 0 15px;
-            min-width: 60px;
+            min-width: 50px;
         }
         .days-num { font-size: 1.8rem; font-weight: 900; line-height: 1; display: block; }
         .days-unit { font-size: 0.6rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; }
@@ -148,9 +164,10 @@
             justify-content: center;
         }
 
-        /* 警告色 */
-        .urgent { border-color: var(--warn) !important; }
+        /* 警告・当日カラー */
+        .urgent { border-color: var(--warn) !important; border-style: solid; }
         .urgent .days-num { color: var(--warn); }
+        .urgent .subs-date { color: var(--warn); }
 
         .footer-btns { display: flex; gap: 10px; margin-bottom: 20px; }
         .kofi-btn {
@@ -189,21 +206,21 @@
     </header>
 
     <div class="input-card">
-        <div class="input-row">
-            <div>
-                <label class="label">Service Name</label>
-                <input type="text" id="nameInput" placeholder="e.g. Netflix" enterkeyhint="next">
-            </div>
-            <div>
-                <label class="label">Billing Date</label>
-                <input type="date" id="dateInput" enterkeyhint="done">
-            </div>
-            <button class="add-btn" onclick="addItem()">ADD TO LIST</button>
+        <label class="label">Service Name</label>
+        <div class="input-wrapper">
+            <input type="text" id="nameInput" placeholder="e.g. Netflix" oninput="toggleClr('nameInput', 'clrName')">
+            <button class="clr-btn" id="clrName" onclick="clearInp('nameInput', 'clrName')">×</button>
         </div>
+        
+        <label class="label">Next Billing Date</label>
+        <div class="input-wrapper">
+            <input type="date" id="dateInput">
+        </div>
+        
+        <button class="add-btn" onclick="addItem()">ADD TO LIST</button>
     </div>
 
-    <div id="subsList" class="list-container">
-        </div>
+    <div id="subsList" class="list-container"></div>
 
     <div class="footer-btns">
         <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
@@ -229,23 +246,28 @@
 <script>
     let subs = JSON.parse(localStorage.getItem('fc_subs_quit') || '[]');
 
+    function toggleClr(inputId, btnId) {
+        const val = document.getElementById(inputId).value;
+        document.getElementById(btnId).classList.toggle('active', val !== '');
+    }
+
+    function clearInp(inputId, btnId) {
+        document.getElementById(inputId).value = '';
+        toggleClr(inputId, btnId);
+        document.getElementById(inputId).focus();
+    }
+
     function addItem() {
         const name = document.getElementById('nameInput').value.trim();
         const date = document.getElementById('dateInput').value;
-
         if (!name || !date) return;
 
-        const newItem = {
-            id: Date.now(),
-            name: name,
-            date: date
-        };
-
-        subs.push(newItem);
+        subs.push({ id: Date.now(), name, date });
         saveAndRender();
 
         document.getElementById('nameInput').value = '';
         document.getElementById('dateInput').value = '';
+        toggleClr('nameInput', 'clrName');
     }
 
     function deleteItem(id) {
@@ -261,34 +283,31 @@
     function renderList() {
         const list = document.getElementById('subsList');
         list.innerHTML = '';
-
         const now = new Date();
         now.setHours(0,0,0,0);
 
-        // Sort by days left
-        const sortedSubs = [...subs].sort((a, b) => {
-            return new Date(a.date) - new Date(b.date);
-        });
+        const sorted = [...subs].sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        sortedSubs.forEach(item => {
-            const targetDate = new Date(item.date);
-            targetDate.setHours(0,0,0,0);
-            const diffTime = targetDate - now;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        sorted.forEach(item => {
+            const target = new Date(item.date);
+            target.setHours(0,0,0,0);
+            const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
             
-            const isUrgent = diffDays <= 3;
-            const displayDays = diffDays < 0 ? "!" : diffDays;
+            // Format date for display (e.g., Apr 30, 2026)
+            const dStr = target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+            const isZero = diffDays === 0;
+            const displayNum = diffDays < 0 ? "!" : diffDays;
 
             const div = document.createElement('div');
-            div.className = `subs-item ${isUrgent ? 'urgent' : ''}`;
+            div.className = `subs-item ${isZero ? 'urgent' : ''}`;
             div.innerHTML = `
                 <div class="subs-info">
                     <div class="subs-name">${item.name}</div>
-                    <div class="subs-date">${item.date}</div>
+                    <div class="subs-date">Next Bill: ${dStr}</div>
                 </div>
                 <div class="subs-countdown">
-                    <span class="days-num">${displayDays}</span>
-                    <span class="days-unit">${diffDays < 0 ? 'EXPIRED' : 'DAYS'}</span>
+                    <span class="days-num">${displayNum}</span>
+                    <span class="days-unit">${diffDays < 0 ? 'PAST' : 'DAYS'}</span>
                 </div>
                 <button class="del-btn" onclick="deleteItem(${item.id})">×</button>
             `;
@@ -296,18 +315,9 @@
         });
     }
 
-    // Enter to next field
-    document.getElementById('nameInput').addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-            e.preventDefault();
-            document.getElementById('dateInput').focus();
-        }
-    });
-
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
-
-    // Initial render
+    
     renderList();
 </script>
 

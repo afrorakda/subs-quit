@@ -28,6 +28,10 @@
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
+            /* 長押し選択を全体的に抑制 */
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
         }
 
         .container {
@@ -40,7 +44,7 @@
             flex-direction: column;
         }
 
-        header { margin-bottom: 25px; }
+        header { margin-bottom: 20px; }
         h1 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
         .subtitle { font-size: 0.85rem; color: var(--text-gray); font-weight: 600; margin-top: 4px; }
 
@@ -54,21 +58,22 @@
         }
 
         .label {
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             font-weight: 800;
             color: var(--text-gray);
-            margin-bottom: 8px;
-            display: block;
+            margin-bottom: 5px;
             text-transform: uppercase;
         }
 
-        input[type="date"] {
+        .input-row { display: flex; flex-direction: column; gap: 10px; }
+
+        input {
             width: 100%;
-            padding: 15px;
+            padding: 12px;
             border: 2px solid var(--accent);
-            border-radius: var(--radius);
+            border-radius: 12px;
             background: #fff;
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--main) !important;
             box-sizing: border-box;
@@ -76,63 +81,78 @@
             -webkit-appearance: none;
             -webkit-text-fill-color: var(--main) !important;
             opacity: 1 !important;
+            user-select: text; /* 入力時のみテキスト選択を許可 */
         }
+        input::placeholder { color: #ccc; -webkit-text-fill-color: #ccc; }
 
-        /* 警告ボードエリア */
-        .display-area {
+        .add-btn {
+            width: 100%;
+            background: var(--main);
+            color: #fff;
+            border: none;
+            padding: 15px;
+            border-radius: var(--radius);
+            font-size: 1rem;
+            font-weight: 800;
+            cursor: pointer;
+            margin-top: 5px;
+            transition: opacity 0.2s;
+        }
+        .add-btn:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* 警告リスト（Snippet） */
+        .list-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            padding: 20px 0;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .days-left {
-            font-size: 5rem;
-            font-weight: 900;
-            line-height: 1;
-            letter-spacing: -2px;
-            margin: 0;
-        }
-        .days-label {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: var(--text-gray);
-            margin-top: 5px;
-        }
-
-        .status-msg {
-            margin-top: 20px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            min-height: 1.2em;
-        }
-
-        /* 見えないお節介（カレンダーリンク） */
-        .action-area {
-            margin-top: 20px;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
-        .action-area.active { opacity: 1; pointer-events: auto; }
-
-        .cal-link {
-            display: inline-flex;
+        .subs-item {
+            background: #fff;
+            border: 2px solid var(--accent);
+            border-radius: var(--radius);
+            padding: 15px;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 10px 20px;
-            background: var(--accent);
-            color: var(--main);
-            text-decoration: none;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 800;
-            transition: transform 0.2s;
+            justify-content: space-between;
+            text-align: left;
+            animation: fadeIn 0.3s ease;
         }
-        .cal-link:active { transform: scale(0.95); }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        .footer-btns { display: flex; gap: 10px; margin-bottom: 20px; margin-top: 20px; }
+        .subs-info { flex-grow: 1; }
+        .subs-name { font-weight: 800; font-size: 1rem; margin-bottom: 2px; }
+        .subs-date { font-size: 0.75rem; color: var(--text-gray); font-weight: 600; }
+
+        .subs-countdown {
+            text-align: right;
+            margin: 0 15px;
+            min-width: 60px;
+        }
+        .days-num { font-size: 1.8rem; font-weight: 900; line-height: 1; display: block; }
+        .days-unit { font-size: 0.6rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; }
+
+        .del-btn {
+            background: var(--accent);
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            color: var(--text-gray);
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 警告色 */
+        .urgent { border-color: var(--warn) !important; }
+        .urgent .days-num { color: var(--warn); }
+
+        .footer-btns { display: flex; gap: 10px; margin-bottom: 20px; }
         .kofi-btn {
             flex: 6; background: var(--main); color: #fff;
             padding: 12px; border-radius: var(--radius);
@@ -165,25 +185,25 @@
 <div class="container">
     <header>
         <h1>SUBS QUIT</h1>
-        <p class="subtitle">Visual countdown for your next bill.</p>
+        <p class="subtitle">Personal billing exit list.</p>
     </header>
 
     <div class="input-card">
-        <label class="label">Next Billing Date</label>
-        <input type="date" id="dateInput" onchange="updateCountdown()">
+        <div class="input-row">
+            <div>
+                <label class="label">Service Name</label>
+                <input type="text" id="nameInput" placeholder="e.g. Netflix" enterkeyhint="next">
+            </div>
+            <div>
+                <label class="label">Billing Date</label>
+                <input type="date" id="dateInput" enterkeyhint="done">
+            </div>
+            <button class="add-btn" onclick="addItem()">ADD TO LIST</button>
+        </div>
     </div>
 
-    <div class="display-area">
-        <div id="countdown" class="days-left">--</div>
-        <div id="label" class="days-label">DAYS LEFT</div>
-        <div id="status" class="status-msg"></div>
-    </div>
-
-    <div id="actionArea" class="action-area">
-        <a id="googleCal" href="#" target="_blank" class="cal-link">
-            📅 Add to Google Calendar
-        </a>
-    </div>
+    <div id="subsList" class="list-container">
+        </div>
 
     <div class="footer-btns">
         <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
@@ -207,54 +227,88 @@
 </div>
 
 <script>
-    function updateCountdown() {
-        const input = document.getElementById('dateInput').value;
-        const display = document.getElementById('countdown');
-        const status = document.getElementById('status');
-        const actionArea = document.getElementById('actionArea');
-        
-        if (!input) return;
+    let subs = JSON.parse(localStorage.getItem('fc_subs_quit') || '[]');
 
-        const targetDate = new Date(input);
-        targetDate.setHours(0, 0, 0, 0);
-        
-        const now = new Date();
-        now.setHours(0, 0, 0, 0);
-        
-        const diffTime = targetDate - now;
-        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    function addItem() {
+        const name = document.getElementById('nameInput').value.trim();
+        const date = document.getElementById('dateInput').value;
 
-        // UI Reset
-        display.style.color = 'var(--main)';
-        actionArea.classList.add('active');
+        if (!name || !date) return;
 
-        if (diffDays < 0) {
-            display.innerText = "!";
-            status.innerText = "Payment already processed.";
-            status.style.color = 'var(--text-gray)';
-        } else if (diffDays === 0) {
-            display.innerText = "0";
-            display.style.color = 'var(--warn)';
-            status.innerText = "QUIT TODAY!";
-            status.style.color = 'var(--warn)';
-        } else {
-            display.innerText = diffDays;
-            status.innerText = diffDays <= 1 ? "TIME IS RUNNING OUT" : "Keep track of your exit.";
-            status.style.color = diffDays <= 1 ? 'var(--warn)' : 'var(--text-gray)';
-            if (diffDays <= 1) display.style.color = 'var(--warn)';
-        }
+        const newItem = {
+            id: Date.now(),
+            name: name,
+            date: date
+        };
 
-        // Generate Google Calendar Link (Reminder for the day before)
-        const reminderDate = new Date(targetDate);
-        reminderDate.setDate(reminderDate.getDate() - 1);
-        const dateStr = reminderDate.toISOString().replace(/-|:|\.\d\d\d/g, "").split("T")[0];
-        
-        const gCalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=QUIT+SUBSCRIPTION+NOW&dates=${dateStr}/${dateStr}&details=Avoid+automatic+billing.+Cancel+today!&sf=true&output=xml`;
-        document.getElementById('googleCal').href = gCalUrl;
+        subs.push(newItem);
+        saveAndRender();
+
+        document.getElementById('nameInput').value = '';
+        document.getElementById('dateInput').value = '';
     }
+
+    function deleteItem(id) {
+        subs = subs.filter(item => item.id !== id);
+        saveAndRender();
+    }
+
+    function saveAndRender() {
+        localStorage.setItem('fc_subs_quit', JSON.stringify(subs));
+        renderList();
+    }
+
+    function renderList() {
+        const list = document.getElementById('subsList');
+        list.innerHTML = '';
+
+        const now = new Date();
+        now.setHours(0,0,0,0);
+
+        // Sort by days left
+        const sortedSubs = [...subs].sort((a, b) => {
+            return new Date(a.date) - new Date(b.date);
+        });
+
+        sortedSubs.forEach(item => {
+            const targetDate = new Date(item.date);
+            targetDate.setHours(0,0,0,0);
+            const diffTime = targetDate - now;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            
+            const isUrgent = diffDays <= 3;
+            const displayDays = diffDays < 0 ? "!" : diffDays;
+
+            const div = document.createElement('div');
+            div.className = `subs-item ${isUrgent ? 'urgent' : ''}`;
+            div.innerHTML = `
+                <div class="subs-info">
+                    <div class="subs-name">${item.name}</div>
+                    <div class="subs-date">${item.date}</div>
+                </div>
+                <div class="subs-countdown">
+                    <span class="days-num">${displayDays}</span>
+                    <span class="days-unit">${diffDays < 0 ? 'EXPIRED' : 'DAYS'}</span>
+                </div>
+                <button class="del-btn" onclick="deleteItem(${item.id})">×</button>
+            `;
+            list.appendChild(div);
+        });
+    }
+
+    // Enter to next field
+    document.getElementById('nameInput').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            document.getElementById('dateInput').focus();
+        }
+    });
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
+
+    // Initial render
+    renderList();
 </script>
 
 </body>

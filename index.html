@@ -179,7 +179,7 @@
             justify-content: center;
         }
 
-        /* Status Colors - Urgent/Past items on Top */
+        /* Status Colors - Past/Urgent focus */
         .urgent { border-color: var(--warn) !important; border-width: 3px; background: #fffaf9; }
         .urgent .days-num, .urgent .subs-name { color: var(--warn); }
         .urgent .days-unit { color: var(--warn); }
@@ -231,7 +231,7 @@
     <div class="input-card">
         <div class="label">Service Name</div>
         <div class="input-wrapper">
-            <input type="text" id="nameInput" placeholder="e.g. Netflix" oninput="toggleClr('nameInput', 'clrName')">
+            <input type="text" id="nameInput" placeholder="e.g. Netflix" oninput="toggleClr('nameInput', 'clrName')" autocapitalize="none">
             <button class="clr-btn" id="clrName" onclick="clearInp('nameInput', 'clrName')">×</button>
         </div>
         
@@ -289,6 +289,7 @@
         subs.push({ id: Date.now(), name, date });
         saveAndRender();
 
+        // UI Reset and Close Keyboard
         document.getElementById('nameInput').value = '';
         document.getElementById('dateInput').value = '';
         toggleClr('nameInput', 'clrName');
@@ -311,9 +312,7 @@
         const now = new Date();
         now.setHours(0,0,0,0);
 
-        // Sorting Logic: 
-        // 1. Past/Urgent items (diffDays <= 0) come first
-        // 2. Then sort by date ascending
+        // Sorting: Past/Urgent items first, then ascending
         const sorted = [...subs].sort((a, b) => {
             const dateA = new Date(a.date);
             const dateB = new Date(b.date);

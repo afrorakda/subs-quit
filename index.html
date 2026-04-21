@@ -17,6 +17,7 @@
             --radius: 15px;
             --warn: #e74c3c;
             --past: #f39c12;
+            --text-label: #555;
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
@@ -73,7 +74,7 @@
         .label {
             font-size: 0.8rem;
             font-weight: 900;
-            color: #555;
+            color: var(--text-label);
             margin-bottom: 6px;
             margin-left: 5px;
             text-transform: uppercase;
@@ -83,13 +84,13 @@
         
         input {
             width: 100%;
-            padding: 14px;
-            padding-right: 45px;
+            padding: 16px;
+            padding-right: 50px;
             border: 2px solid var(--accent);
             border-radius: 12px;
             background: #fff;
-            font-size: 1rem;
-            font-weight: 800;
+            font-size: 1.1rem;
+            font-weight: 900;
             color: var(--main) !important;
             outline: none;
             -webkit-appearance: none;
@@ -101,14 +102,14 @@
 
         .clr-btn {
             position: absolute;
-            right: 10px;
-            width: 30px;
-            height: 30px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
             background: #ccc;
             border: none;
             border-radius: 50%;
             color: #fff;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 900;
             cursor: pointer;
             display: none;
@@ -122,9 +123,9 @@
             background: var(--main);
             color: #fff;
             border: none;
-            padding: 16px;
+            padding: 18px;
             border-radius: var(--radius);
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: 900;
             cursor: pointer;
             -webkit-text-fill-color: #fff;
@@ -144,7 +145,7 @@
             background: #fff;
             border: 2px solid var(--accent);
             border-radius: var(--radius);
-            padding: 15px;
+            padding: 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -152,25 +153,25 @@
         }
 
         .subs-info { flex: 1; min-width: 0; }
-        .subs-name { font-weight: 900; font-size: 1.1rem; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .subs-date { font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase; }
+        .subs-name { font-weight: 900; font-size: 1.2rem; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .subs-date { font-size: 0.8rem; color: #555; font-weight: 800; text-transform: uppercase; }
 
         .subs-countdown {
             text-align: center;
             margin: 0 15px;
-            min-width: 60px;
+            min-width: 65px;
         }
-        .days-num { font-size: 2rem; font-weight: 900; line-height: 1; display: block; }
-        .days-unit { font-size: 0.65rem; font-weight: 900; color: #999; text-transform: uppercase; }
+        .days-num { font-size: 2.2rem; font-weight: 900; line-height: 1; display: block; }
+        .days-unit { font-size: 0.7rem; font-weight: 900; color: #777; text-transform: uppercase; }
 
         .del-btn {
             background: var(--accent);
             border: none;
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            color: #777;
-            font-size: 1.4rem;
+            color: #555;
+            font-size: 1.5rem;
             font-weight: 900;
             cursor: pointer;
             display: flex;
@@ -178,15 +179,16 @@
             justify-content: center;
         }
 
-        /* Status Colors */
-        .urgent { border-color: var(--warn) !important; border-width: 3px; }
+        /* Status Colors - Urgent/Past items on Top */
+        .urgent { border-color: var(--warn) !important; border-width: 3px; background: #fffaf9; }
         .urgent .days-num, .urgent .subs-name { color: var(--warn); }
-        .urgent .days-unit { color: var(--warn); opacity: 0.8; }
+        .urgent .days-unit { color: var(--warn); }
 
-        .past-due { border-color: var(--past) !important; opacity: 0.8; }
+        .past-due { border-color: var(--past) !important; border-width: 3px; background: #fffbf5; }
         .past-due .days-num, .past-due .subs-name { color: var(--past); }
+        .past-due .days-unit { color: var(--past); }
 
-        /* Footer & Buttons */
+        /* Footer */
         .footer-btns { margin-top: auto; padding: 20px 0; text-align: center; }
         .kofi-btn {
             display: inline-flex; align-items: center; justify-content: center;
@@ -309,13 +311,24 @@
         const now = new Date();
         now.setHours(0,0,0,0);
 
-        const sorted = [...subs].sort((a, b) => new Date(a.date) - new Date(b.date));
+        // Sorting Logic: 
+        // 1. Past/Urgent items (diffDays <= 0) come first
+        // 2. Then sort by date ascending
+        const sorted = [...subs].sort((a, b) => {
+            const dateA = new Date(a.date);
+            const dateB = new Date(b.date);
+            const diffA = Math.ceil((dateA - now) / (1000 * 60 * 60 * 24));
+            const diffB = Math.ceil((dateB - now) / (1000 * 60 * 60 * 24));
+
+            if (diffA <= 0 && diffB > 0) return -1;
+            if (diffA > 0 && diffB <= 0) return 1;
+            return dateA - dateB;
+        });
 
         sorted.forEach(item => {
             const target = new Date(item.date);
             target.setHours(0,0,0,0);
             const diffDays = Math.ceil((target - now) / (1000 * 60 * 60 * 24));
-            
             const dStr = target.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
             
             let statusClass = "";

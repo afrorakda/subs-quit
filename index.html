@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SUBS QUIT</title>
     
     <link rel="icon" href="image_113.png">
@@ -15,39 +15,52 @@
             --accent: #eee;
             --input-bg: #fafafa;
             --radius: 15px;
-            --text-gray: #666;
             --warn: #e74c3c;
-            --past: #f39c12; /* オレンジ：過去日用 */
+            --past: #f39c12;
         }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             background-color: var(--bg);
             color: var(--main);
-            margin: 0;
             display: flex;
             justify-content: center;
             min-height: 100vh;
             -webkit-font-smoothing: antialiased;
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
+            padding: env(safe-area-inset-top, 20px) 20px env(safe-area-inset-bottom, 20px) 20px;
         }
 
         .container {
             width: 100%;
             max-width: 420px;
-            padding: 20px;
-            box-sizing: border-box;
-            text-align: center;
             display: flex;
             flex-direction: column;
         }
 
-        header { margin-bottom: 20px; }
-        h1 { font-size: 1.8rem; font-weight: 800; margin: 0; letter-spacing: -1px; }
-        .subtitle { font-size: 0.85rem; color: var(--text-gray); font-weight: 600; margin-top: 4px; }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
 
+        h1 { font-size: 1.8rem; font-weight: 900; letter-spacing: -1.5px; }
+        
+        .hub-link {
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: var(--main);
+            background: var(--accent);
+            padding: 8px 14px;
+            border-radius: 12px;
+        }
+
+        .subtitle { font-size: 0.9rem; color: #666; font-weight: 800; margin-bottom: 20px; text-align: left; }
+
+        /* Input Section */
         .input-card {
             background: var(--input-bg);
             padding: 20px;
@@ -58,45 +71,45 @@
         }
 
         .label {
-            font-size: 0.7rem;
-            font-weight: 800;
-            color: var(--text-gray);
-            margin-bottom: 5px;
+            font-size: 0.8rem;
+            font-weight: 900;
+            color: #555;
+            margin-bottom: 6px;
+            margin-left: 5px;
             text-transform: uppercase;
         }
 
-        .input-wrapper { position: relative; display: flex; align-items: center; margin-bottom: 10px; }
+        .input-wrapper { position: relative; display: flex; align-items: center; margin-bottom: 12px; }
         
         input {
             width: 100%;
-            padding: 12px;
-            padding-right: 40px;
+            padding: 14px;
+            padding-right: 45px;
             border: 2px solid var(--accent);
             border-radius: 12px;
             background: #fff;
             font-size: 1rem;
-            font-weight: 700;
+            font-weight: 800;
             color: var(--main) !important;
-            box-sizing: border-box;
             outline: none;
             -webkit-appearance: none;
             -webkit-text-fill-color: var(--main) !important;
             opacity: 1 !important;
-            user-select: text;
         }
-        input::placeholder { color: #bbb; -webkit-text-fill-color: #bbb; }
+        input::placeholder { color: #ccc !important; -webkit-text-fill-color: #ccc !important; }
+        input:focus { border-color: var(--main); }
 
         .clr-btn {
             position: absolute;
-            right: 8px;
-            width: 28px;
-            height: 28px;
-            background: rgba(0,0,0,0.05);
+            right: 10px;
+            width: 30px;
+            height: 30px;
+            background: #ccc;
             border: none;
             border-radius: 50%;
-            color: #888;
-            font-size: 1rem;
-            font-weight: 800;
+            color: #fff;
+            font-size: 1.2rem;
+            font-weight: 900;
             cursor: pointer;
             display: none;
             align-items: center;
@@ -109,22 +122,22 @@
             background: var(--main);
             color: #fff;
             border: none;
-            padding: 15px;
+            padding: 16px;
             border-radius: var(--radius);
             font-size: 1rem;
-            font-weight: 800;
+            font-weight: 900;
             cursor: pointer;
-            margin-top: 5px;
-            transition: opacity 0.2s;
+            -webkit-text-fill-color: #fff;
         }
-        .add-btn:active { transform: scale(0.98); opacity: 0.9; }
+        .add-btn:active { transform: scale(0.98); }
 
+        /* List Area */
         .list-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            margin-bottom: 20px;
+            gap: 12px;
+            margin-bottom: 30px;
         }
 
         .subs-item {
@@ -136,69 +149,72 @@
             align-items: center;
             justify-content: space-between;
             text-align: left;
-            transition: all 0.3s;
         }
 
-        .subs-info { flex-grow: 1; min-width: 0; }
-        .subs-name { font-weight: 800; font-size: 1rem; margin-bottom: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .subs-date { font-size: 0.7rem; color: var(--text-gray); font-weight: 700; text-transform: uppercase; }
+        .subs-info { flex: 1; min-width: 0; }
+        .subs-name { font-weight: 900; font-size: 1.1rem; margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .subs-date { font-size: 0.75rem; color: #888; font-weight: 800; text-transform: uppercase; }
 
         .subs-countdown {
-            text-align: right;
+            text-align: center;
             margin: 0 15px;
-            min-width: 50px;
+            min-width: 60px;
         }
-        .days-num { font-size: 1.8rem; font-weight: 900; line-height: 1; display: block; }
-        .days-unit { font-size: 0.6rem; font-weight: 800; color: var(--text-gray); text-transform: uppercase; }
+        .days-num { font-size: 2rem; font-weight: 900; line-height: 1; display: block; }
+        .days-unit { font-size: 0.65rem; font-weight: 900; color: #999; text-transform: uppercase; }
 
         .del-btn {
             background: var(--accent);
             border: none;
-            width: 32px;
-            height: 32px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
-            color: var(--text-gray);
-            font-weight: 800;
+            color: #777;
+            font-size: 1.4rem;
+            font-weight: 900;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* 警告・当日（赤） */
-        .urgent { border-color: var(--warn) !important; border-width: 2px; }
-        .urgent .days-num, .urgent .subs-date { color: var(--warn); }
+        /* Status Colors */
+        .urgent { border-color: var(--warn) !important; border-width: 3px; }
+        .urgent .days-num, .urgent .subs-name { color: var(--warn); }
+        .urgent .days-unit { color: var(--warn); opacity: 0.8; }
 
-        /* 期限切れ（オレンジ） */
-        .past-due { border-color: var(--past) !important; border-width: 2px; }
-        .past-due .days-num, .past-due .subs-date { color: var(--past); }
+        .past-due { border-color: var(--past) !important; opacity: 0.8; }
+        .past-due .days-num, .past-due .subs-name { color: var(--past); }
 
-        .footer-btns { display: flex; gap: 10px; margin-bottom: 20px; }
+        /* Footer & Buttons */
+        .footer-btns { margin-top: auto; padding: 20px 0; text-align: center; }
         .kofi-btn {
-            flex: 6; background: var(--main); color: #fff;
-            padding: 12px; border-radius: var(--radius);
-            text-decoration: none; font-weight: bold; font-size: 13px;
-            display: flex; align-items: center; justify-content: center;
+            display: inline-flex; align-items: center; justify-content: center;
+            background: var(--main); color: #fff; width: 100%; max-width: 340px;
+            padding: 18px; border-radius: var(--radius);
+            text-decoration: none; font-weight: 900; font-size: 1rem; margin-bottom: 12px;
+            -webkit-text-fill-color: #fff;
         }
         .home-btn {
-            flex: 4; background: var(--accent); color: var(--main);
-            border: none; padding: 12px;
-            border-radius: var(--radius); font-weight: 800; font-size: 12px; 
-            cursor: pointer;
+            display: block; width: 100%; max-width: 340px; margin: 0 auto; 
+            background: var(--accent); color: var(--main); border: none; 
+            padding: 14px; border-radius: var(--radius); font-weight: 800; font-size: 0.9rem; cursor: pointer;
         }
 
-        footer { font-size: 10px; color: #aaa; line-height: 1.6; font-weight: 500; padding-bottom: 10px; }
+        footer { padding: 15px 0; text-align: center; font-size: 0.75rem; color: #999; line-height: 1.6; font-weight: 700; }
         footer a { color: inherit; text-decoration: underline; }
 
+        /* Modal */
         #modal {
             display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 100;
+            background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 1000;
+            backdrop-filter: blur(4px);
         }
         .modal-content {
-            background: #fff; width: 85%; max-width: 340px; padding: 30px;
+            background: #fff; width: 90%; max-width: 320px; padding: 35px;
             border-radius: var(--radius); text-align: left; position: relative;
         }
-        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #888; cursor: pointer; }
+        .close-x { position: absolute; top: 15px; right: 20px; font-size: 24px; color: #ccc; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
@@ -206,17 +222,18 @@
 <div class="container">
     <header>
         <h1>SUBS QUIT</h1>
-        <p class="subtitle">Personal billing exit list.</p>
+        <a href="https://afrorakda.github.io/" class="hub-link">🏠 Hub</a>
     </header>
+    <p class="subtitle">Personal billing exit list.</p>
 
     <div class="input-card">
-        <label class="label">Service Name</label>
+        <div class="label">Service Name</div>
         <div class="input-wrapper">
             <input type="text" id="nameInput" placeholder="e.g. Netflix" oninput="toggleClr('nameInput', 'clrName')">
             <button class="clr-btn" id="clrName" onclick="clearInp('nameInput', 'clrName')">×</button>
         </div>
         
-        <label class="label">Next Billing Date</label>
+        <div class="label">Next Billing Date</div>
         <div class="input-wrapper">
             <input type="date" id="dateInput">
         </div>
@@ -228,22 +245,23 @@
 
     <div class="footer-btns">
         <a href="https://ko-fi.com/afrorakda" target="_blank" class="kofi-btn">☕️buy me a coffee</a>
-        <button class="home-btn" onclick="showModal()">Add Home</button>
+        <button class="home-btn" onclick="showModal()">Add to Home Screen</button>
     </div>
 
-    <footer>
-        <div>No login / No tracking / No ads / Browser only</div>
-        <div><a href="https://afrorakda.com/privacy/">Privacy Policy</a> / afrorakda © 2026</div>
+    <footer id="dynamicFooter">
+        No login / No tracking / No ads / Browser only<br>
+        <a href="https://afrorakda.com/privacy/">Privacy Policy</a> / afrorakda © 2026
     </footer>
 </div>
 
 <div id="modal" onclick="hideModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <span class="close-x" onclick="hideModal()">×</span>
-        <h3>📱 Install</h3>
-        <p>Add to your home screen.</p>
-        <p>🍏 <strong>iPhone (Safari):</strong><br>Tap Share, then Add to Home Screen.</p>
-        <p>🤖 <strong>Android (Chrome):</strong><br>Tap Menu (⋮), then Add to Home Screen.</p>
+        <h3 style="margin-bottom: 10px; font-weight: 900;">📱 Install</h3>
+        <div style="font-size: 0.9rem; line-height: 1.6; font-weight: 700;">
+            <p>🍏 <strong>iPhone:</strong><br>Share > Add to Home Screen</p>
+            <p style="margin-top:10px;">🤖 <strong>Android:</strong><br>Menu (⋮) > Add to Home Screen</p>
+        </div>
     </div>
 </div>
 
@@ -252,7 +270,7 @@
 
     function toggleClr(inputId, btnId) {
         const val = document.getElementById(inputId).value;
-        document.getElementById(btnId).classList.toggle('active', val !== '');
+        document.getElementById(btnId).style.display = val !== '' ? 'flex' : 'none';
     }
 
     function clearInp(inputId, btnId) {
@@ -272,6 +290,7 @@
         document.getElementById('nameInput').value = '';
         document.getElementById('dateInput').value = '';
         toggleClr('nameInput', 'clrName');
+        document.querySelectorAll('input').forEach(i => i.blur());
     }
 
     function deleteItem(id) {
@@ -305,6 +324,7 @@
 
             if (diffDays === 0) {
                 statusClass = "urgent";
+                displayNum = "0";
             } else if (diffDays < 0) {
                 statusClass = "past-due";
                 displayNum = "!";
@@ -330,8 +350,21 @@
 
     function showModal() { document.getElementById('modal').style.display = 'flex'; }
     function hideModal() { document.getElementById('modal').style.display = 'none'; }
-    
-    renderList();
+
+    async function loadFooter() {
+        try {
+            const res = await fetch('footer.json');
+            if (res.ok) {
+                const data = await res.json();
+                if (data.footerHtml) document.getElementById('dynamicFooter').innerHTML = data.footerHtml;
+            }
+        } catch (e) {}
+    }
+
+    window.onload = () => {
+        renderList();
+        loadFooter();
+    };
 </script>
 
 </body>
